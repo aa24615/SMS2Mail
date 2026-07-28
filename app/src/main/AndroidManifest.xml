@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 联网发邮件 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- 接收短信广播 -->
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <!-- Android 13+ 前台服务通知 -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- 前台服务（Android 14 必需） -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
+    <application
+        android:allowBackup="true"
+        android:label="SmsForwarderLite"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.SmsForwarderLite">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false" />
+
+        <!-- 短信接收器：仅接收系统 SMS 广播 -->
+        <receiver
+            android:name=".SmsReceiver"
+            android:exported="true"
+            android:permission="android.permission.BROADCAST_SMS">
+            <intent-filter android:priority="999">
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- 转发服务：前台服务，dataSync 类型 -->
+        <service
+            android:name=".ForwarderService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+    </application>
+</manifest>
