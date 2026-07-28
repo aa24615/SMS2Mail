@@ -1,16 +1,22 @@
 pluginManagement {
     repositories {
+        // 国内镜像加速（放在官方源之前）
+        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
+        maven { url = uri("https://maven.aliyun.com/repository/google") }
+        maven { url = uri("https://maven.aliyun.com/repository/central") }
+        gradlePluginPortal()
         google()
         mavenCentral()
-        gradlePluginPortal()
     }
 }
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
+        maven { url = uri("https://maven.aliyun.com/repository/google") }
+        maven { url = uri("https://maven.aliyun.com/repository/central") }
         google()
         mavenCentral()
     }
 }
-rootProject.name = "SmsForwarderLite"
+rootProject.name = "SMS2Mail"
 include(":app")

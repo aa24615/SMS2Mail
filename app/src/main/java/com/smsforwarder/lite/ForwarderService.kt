@@ -1,4 +1,4 @@
-package com.smsforwarder.lite
+package com.php127.sms2mail
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -49,11 +49,13 @@ class ForwarderService : Service() {
         Thread(Runnable {
             try {
                 if (!cfg.isConfigured) {
-                    AppLog.w(this, "邮箱未配置，跳过转发 from=$sender")
+                    AppLog.w(this, "邮箱未配置，跳过转发 from=$sender（请到「配置邮箱」填写 SMTP 并保存）")
                 } else {
+                    AppLog.i(this, "开始转发短信 from=$sender -> ${cfg.to}（${cfg.security} ${cfg.smtpHost}:${cfg.smtpPort}）")
                     val subject = "[短信转发] 来自 $sender"
                     val text = "发件人: $sender\n接收时间: ${AppLog.now()}\n\n内容:\n$body"
-                    EmailSender.send(cfg, subject, text)
+                    AppLog.d(this, "短信内容长度=${text.length} 字，准备发送")
+                    EmailSender.send(this, cfg, subject, text)
                     AppLog.i(this, "邮件转发成功 from=$sender -> ${cfg.to}")
                 }
             } catch (e: Exception) {
@@ -80,7 +82,7 @@ class ForwarderService : Service() {
             PendingIntent.getActivity(this, 0, launchIntent, PendingIntent.FLAG_IMMUTABLE)
         else null
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("SmsForwarderLite")
+            .setContentTitle("SMS2Mail")
             .setContentText(text)
             .setSmallIcon(android.R.drawable.ic_dialog_email)
             .setContentIntent(pi)

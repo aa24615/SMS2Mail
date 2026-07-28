@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.smsforwarder.lite"
+    namespace = "com.php127.sms2mail"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.smsforwarder.lite"
+        applicationId = "com.php127.sms2mail"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -31,6 +31,22 @@ android {
     }
     buildFeatures {
         viewBinding = true
+    }
+
+    // JavaMail 等库会带入 META-INF/NOTICE.md、LICENSE.md 等文件，
+    // 多个 JAR 同名冲突导致打包失败，这里排除掉（仅元数据，不影响运行）。
+    packaging {
+        resources {
+            excludes += setOf(
+                "META-INF/NOTICE.md",
+                "META-INF/NOTICE",
+                "META-INF/LICENSE.md",
+                "META-INF/LICENSE",
+                "META-INF/DEPENDENCIES",
+                "META-INF/LICENSE.txt",
+                "META-INF/NOTICE.txt"
+            )
+        }
     }
 }
 

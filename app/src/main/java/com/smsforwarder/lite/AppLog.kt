@@ -1,4 +1,4 @@
-package com.smsforwarder.lite
+package com.php127.sms2mail
 
 import android.content.Context
 import android.util.Log
@@ -20,7 +20,7 @@ object AppLog {
         val root = context.getExternalFilesDir(null) ?: context.filesDir
         val dir = File(root, "logs")
         if (!dir.exists()) dir.mkdirs()
-        return File(dir, "smsforwarder.log")
+        return File(dir, "sms2mail.log")
     }
 
     fun now(): String =
@@ -54,6 +54,7 @@ object AppLog {
     fun i(context: Context?, msg: String) = log(Log.INFO, context, msg)
     fun w(context: Context?, msg: String) = log(Log.WARN, context, msg)
     fun e(context: Context?, msg: String) = log(Log.ERROR, context, msg)
+    fun d(context: Context?, msg: String) = log(Log.DEBUG, context, msg)
 
     fun readLog(context: Context): String {
         return try {
@@ -64,6 +65,17 @@ object AppLog {
             val sb = StringBuilder()
             for (i in start until lines.size) sb.append(lines[i]).append("\n")
             sb.toString()
+        } catch (e: Exception) {
+            "(读取日志失败：${e.message})"
+        }
+    }
+
+    /** 导出用：返回日志文件的完整内容（不截断）。 */
+    fun fullLog(context: Context): String {
+        return try {
+            val f = file(context)
+            if (!f.exists()) return "(暂无日志)"
+            f.readText()
         } catch (e: Exception) {
             "(读取日志失败：${e.message})"
         }

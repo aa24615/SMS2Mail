@@ -1,9 +1,9 @@
-package com.smsforwarder.lite
+package com.php127.sms2mail
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.telephony.Telephony
+import android.provider.Telephony
 import androidx.core.content.ContextCompat
 
 /**
@@ -15,7 +15,10 @@ class SmsReceiver : BroadcastReceiver() {
         if (intent.action != Telephony.Sms.Intents.SMS_RECEIVED_ACTION) return
 
         val messages = Telephony.Sms.Intents.getMessagesFromIntent(intent)
-        if (messages.isNullOrEmpty()) return
+        if (messages.isNullOrEmpty()) {
+            AppLog.w(context, "收到短信广播，但解析出的短信内容为空，已忽略")
+            return
+        }
 
         val body = StringBuilder()
         var sender: String? = null
@@ -32,6 +35,12 @@ class SmsReceiver : BroadcastReceiver() {
             putExtra("sender", from)
             putExtra("body", text)
         }
-        ContextCompat.startForegroundService(context, i)
+        try {
+            ContextCompat.startForegroundService(context, i)
+            AppLog.i(context, "已请求转发服务处理 from=$from")
+        } catch (e: Exception) {
+            // 启动前台服务失败（多见于后台限制 / 权限问题），记下原因便于排查
+            AppLog.e(context, "启动转发服务失败 from=$from: ${e.message}")
+        }
     }
 }

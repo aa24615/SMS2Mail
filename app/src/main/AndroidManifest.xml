@@ -10,12 +10,20 @@
     <!-- 前台服务（Android 14 必需） -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <!-- 开机自启监听服务 -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- 引导用户忽略电池优化（代码内跳转设置页） -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <!-- 导出日志到下载目录（仅 Android 9 及以下回退路径需要，现代系统用 MediaStore 免权限） -->
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
 
     <application
         android:allowBackup="true"
-        android:label="SmsForwarderLite"
+        android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.SmsForwarderLite">
+        android:theme="@style/Theme.SMS2Mail">
 
         <activity
             android:name=".MainActivity"
@@ -30,13 +38,22 @@
             android:name=".SettingsActivity"
             android:exported="false" />
 
-        <!-- 短信接收器：仅接收系统 SMS 广播 -->
+        <!-- 短信接收器改为由 ListenerService 运行时动态注册（见下），不再静态注册，
+             以避免厂商后台广播限制导致收不到短信 -->
+
+        <!-- 监听服务：常驻前台，运行时注册短信接收器，扛住后台限制 -->
+        <service
+            android:name=".ListenerService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
+        <!-- 开机自启：启动监听服务 -->
         <receiver
-            android:name=".SmsReceiver"
-            android:exported="true"
-            android:permission="android.permission.BROADCAST_SMS">
-            <intent-filter android:priority="999">
-                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            android:name=".BootReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
 

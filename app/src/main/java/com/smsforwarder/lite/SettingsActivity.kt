@@ -1,24 +1,102 @@
-package com.smsforwarder.lite
+package com.php127.sms2mail
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.widget.ArrayAdapter
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.smsforwarder.lite.databinding.ActivitySettingsBinding
+import com.php127.sms2mail.databinding.ActivitySettingsBinding
 
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySettingsBinding
+
+    // 导出：让用户选择保存位置（系统文件选择器，无需存储权限）
+    private val exportLauncher = registerForActivityResult(
+        ActivityResultContracts.CreateDocument("application/json")
+    ) { uri: Uri? ->
+        uri ?: return@registerForActivityResult
+        try {
+            val json = Prefs.exportJson(this)
+            contentResolver.openOutputStream(uri)?.use { it.write(json.toByteArray()) }
+            AppLog.i(this, "配置已导出")
+        } catch (e: Exception) {
+            AppLog.e(this, "配置导出失败：${e.message}")
+        }
+    }
+
+    // 导入：让用户选择之前导出的 JSON 文件
+    private val importLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri: Uri? ->
+        uri ?: return@registerForActivityResult
+        try {
+            val json = contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
+            if (!json.isNullOrBlank() && Prefs.importJson(this, json)) {
+                AppLog.i(this, "配置已导入，已自动填充表单")
+                reload()
+            } else {
+                AppLog.e(this, "配置导入失败：文件格式不正确")
+            }
+        } catch (e: Exception) {
+            AppLog.e(this, "配置导入失败：${e.message}")
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // 顶栏
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.title = "邮箱配置"
+
+        // 底部菜单
+        setupBottomNav()
+
         val secs = arrayOf("SSL", "TLS", "NONE")
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, secs)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.spinnerSecurity.adapter = adapter
 
+        reload()
+
+        binding.btnBack.setOnClickListener { finish() }
+        binding.btnSave.setOnClickListener { save() }
+
+        // 底部菜单：主页 / 设置
+        binding.bottomNav.selectedItemId = R.id.nav_settings
+        binding.bottomNav.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_settings -> true
+                R.id.nav_home -> {
+                    startActivity(Intent(this, MainActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                    })
+                    true
+                }
+                else -> false
+            }
+        }
+        binding.btnExport.setOnClickListener { exportLauncher.launch("sms2mail_config.json") }
+        binding.btnImport.setOnClickListener { importLauncher.launch(arrayOf("application/json", "*/*")) }
+
+        // 显示/隐藏密码明文
+        binding.cbShowPass.setOnCheckedChangeListener { _, checked ->
+            val type = if (checked) {
+                android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+            } else {
+                android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+            }
+            binding.etPass.inputType = type
+            binding.etPass.setSelection(binding.etPass.text.length)
+        }
+    }
+
+    /** 从已保存配置回填表单 */
+    private fun reload() {
         val c = Prefs.loadConfig(this)
         binding.etHost.setText(c.smtpHost)
         binding.etPort.setText(c.smtpPort.toString())
@@ -27,9 +105,9 @@ class SettingsActivity : AppCompatActivity() {
         binding.etFrom.setText(c.from)
         binding.etTo.setText(c.to)
         binding.switchEnabled.isChecked = c.enabled
-        binding.spinnerSecurity.setSelection(secs.indexOf(c.security.name).coerceAtLeast(0))
-
-        binding.btnSave.setOnClickListener { save() }
+        binding.spinnerSecurity.setSelection(
+            arrayOf("SSL", "TLS", "NONE").indexOf(c.security.name).coerceAtLeast(0)
+        )
     }
 
     private fun save() {
