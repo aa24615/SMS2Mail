@@ -1,3 +1,5 @@
+![SMS2Mail](docs/1.png)
+
 # SMS2Mail —— 轻量短信转发器（仅转发到邮箱）
 
 > 🤖 本项目由 **WorkBuddy（Hy3 模型）** 生成。
