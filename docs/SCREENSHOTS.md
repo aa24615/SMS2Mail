@@ -1,10 +1,10 @@
+![最初的需求沟通](1.png)
+
 # SMS2Mail 界面截图
 
 本文档用于存放和说明 SMS2Mail 的相关截图。
 
 ## 项目由来
-
-![最初的需求沟通](1.png)
 
 > 基于 [pppscn/SmsForwarder](https://github.com/pppscn/SmsForwarder) 的思路，做一个只保留「短信 → 邮箱」核心能力的轻量安卓短信转发器。
 
