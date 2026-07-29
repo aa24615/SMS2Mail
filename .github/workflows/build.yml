@@ -9,6 +9,11 @@ on:
 permissions:
   contents: write
 
+# `secrets` 上下文不能在 `if:` 中直接使用，这里先把密钥映射到 workflow 级 env，
+# 后续步骤通过 `env.KEYSTORE_BASE64` 来判断是否配置了签名。
+env:
+  KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+
 jobs:
   build:
     name: Build and publish release
@@ -36,20 +41,20 @@ jobs:
         run: echo "sdk.dir=$ANDROID_HOME" > local.properties
 
       - name: Decode signing keystore
-        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+        if: ${{ env.KEYSTORE_BASE64 != '' }}
         run: |
           echo "KEYSTORE_FILE=$GITHUB_WORKSPACE/app/keystore.jks" >> "$GITHUB_ENV"
           echo "KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> "$GITHUB_ENV"
           echo "KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> "$GITHUB_ENV"
           echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> "$GITHUB_ENV"
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > app/keystore.jks
+          echo "${{ env.KEYSTORE_BASE64 }}" | base64 -d > app/keystore.jks
 
       - name: Build signed release APK
-        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+        if: ${{ env.KEYSTORE_BASE64 != '' }}
         run: ./gradlew assembleRelease
 
       - name: Build debug APK (no signing)
-        if: ${{ secrets.KEYSTORE_BASE64 == '' }}
+        if: ${{ env.KEYSTORE_BASE64 == '' }}
         run: ./gradlew assembleDebug
 
       - name: Locate APK
