@@ -53,6 +53,11 @@
             android:name=".LogActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".AboutActivity"
+            android:exported="false"
+            android:parentActivityName=".SettingsActivity" />
+
         <!-- 短信接收器改为由 ListenerService 运行时动态注册（见下），不再静态注册，
              以避免厂商后台广播限制导致收不到短信 -->
 

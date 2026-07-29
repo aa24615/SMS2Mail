@@ -1,6 +1,8 @@
 # SMS2Mail —— 轻量短信转发器（仅转发到邮箱）
 
 > 🤖 本项目由 **WorkBuddy（Hy3 模型）** 生成。
+>
+> 📄 开源协议：[MIT License](LICENSE) ｜ 版权所有 © 2026 **zyan** \<aa24615@qq.com\>
 
 参考开源项目 [pppscn/SmsForwarder](https://github.com/pppscn/SmsForwarder) 的思路，
 但**只保留最核心的能力**：
@@ -161,3 +163,56 @@ SmsForwarderLite/
 
 本项目由 **WorkBuddy（Hy3 模型）** 生成 —— 从需求分析、代码编写、编译错误修复到 UI 迭代，
 全程由 AI 辅助完成。
+
+---
+
+## 开源协议（License）
+
+本项目基于 **[MIT License](LICENSE)** 开源：
+
+- ✅ 允许任意使用、复制、修改、合并、发布、分发、再授权及**商业使用**；
+- ✅ 唯一要求：在软件副本中保留原版权声明和许可声明；
+- ❌ 作者不对使用本软件产生的任何问题承担责任（按"现状"提供，无任何担保）。
+
+版权归属：**zyan** \<aa24615@qq.com\>，© 2026。完整条款见根目录 [LICENSE](LICENSE) 文件。
+
+---
+
+## 自动构建与发版（GitHub Actions）
+
+仓库内置 `.github/workflows/build.yml`：推送 `v*` 形式的 Git tag（例如 `v1.0.0`）即自动构建 APK 并发布到 GitHub Release。
+
+使用步骤：
+
+- 本地提交代码后打 tag 并推送：`git tag v1.0.0 && git push origin v1.0.0`
+- GitHub Actions 自动执行：安装 JDK 17 → 生成 Gradle wrapper → 构建 APK → 创建 Release 并附上 APK
+- 在仓库的 **Releases** 页面下载 APK 安装即可
+
+### 正式签名发布（可选）
+
+默认 CI 产出 **Debug APK**（调试签名，可直接安装测试）。若要发布**已签名的 Release APK**，在仓库
+`Settings → Secrets and variables → Actions` 中添加以下仓库密钥（Repository secrets）：
+
+| Secret | 说明 |
+|--------|------|
+| `KEYSTORE_BASE64` | 签名文件 `.jks` 的 base64 内容（`base64 -w0 your.keystore.jks`） |
+| `KEYSTORE_PASSWORD` | 密钥库密码 |
+| `KEY_ALIAS` | 密钥别名 |
+| `KEY_PASSWORD` | 密钥密码 |
+
+配置后，CI 会自动解码密钥库并以 `assembleRelease` 产出**已签名 APK**；本地不带这些环境变量时不影响普通构建
+（`.jks` 已被 `.gitignore` 忽略，不会提交到仓库）。
+
+---
+
+## 界面预览
+
+> 图片来自真机运行截图，完整说明与对应功能介绍见 [docs/SCREENSHOTS.md](docs/SCREENSHOTS.md)。
+
+| 首页 | 短信列表 |
+|------|----------|
+| <img src="docs/5.jpg" alt="首页" width="260"> | <img src="docs/4.jpg" alt="短信列表" width="260"> |
+
+| 运行日志 | 设置 |
+|----------|------|
+| <img src="docs/3.jpg" alt="运行日志" width="260"> | <img src="docs/2.jpg" alt="设置" width="260"> |

@@ -15,10 +15,27 @@ android {
         versionName = "1.0"
     }
 
+    // 仅在 CI 提供 KEYSTORE_FILE 环境变量时创建并配置 Release 签名（用于 GitHub Actions 自动发版）。
+    // 本地未配置时，release 包不签名，不影响 assembleDebug 与普通构建。
+    val keystoreFile = System.getenv("KEYSTORE_FILE")
+    if (keystoreFile != null) {
+        signingConfigs {
+            create("release") {
+                storeFile = file(keystoreFile)
+                storePassword = System.getenv("KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("KEY_ALIAS")
+                keyPassword = System.getenv("KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            if (keystoreFile != null) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
 
@@ -31,6 +48,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 
     // JavaMail 等库会带入 META-INF/NOTICE.md、LICENSE.md 等文件，

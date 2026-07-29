@@ -70,6 +70,9 @@ class SettingsActivity : AppCompatActivity() {
         binding.itemPermRead.setOnClickListener { requestReadPermission() }
         binding.itemForeground.setOnClickListener { requestForeground() }
         binding.itemBattery.setOnClickListener { requestIgnoreBattery() }
+        binding.itemAbout.setOnClickListener {
+            startActivity(Intent(this, AboutActivity::class.java))
+        }
     }
 
     override fun onResume() {

@@ -257,6 +257,15 @@ class MainActivity : AppCompatActivity() {
         Thread(Runnable {
             try {
                 val cr = contentResolver
+                // 诊断：统计短信库各表可见行数，判断是否被系统权限/安全策略过滤
+                val allCount = countRows("content://sms")
+                val inboxCount = countRows("content://sms/inbox")
+                val sentCount = countRows("content://sms/sent")
+                AppLog.i(this, "同步诊断：短信库全表 $allCount 行 ｜ 收件箱 $inboxCount 行 ｜ 已发送 $sentCount 行")
+                if (inboxCount in 0..10) {
+                    AppLog.w(this, "同步诊断：收件箱可见条数偏少。若手机里实际短信远多于此，" +
+                        "多为系统限制：MIUI「短信权限-仅通知类短信」、验证码安全保护、RCS 消息不入库等，请到系统权限设置中放开")
+                }
                 val uri = Uri.parse("content://sms/inbox")
                 val proj = arrayOf("_id", "address", "body", "date")
                 val cur = cr.query(uri, proj, null, null, "date DESC")
@@ -285,6 +294,18 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }).start()
+    }
+
+    /** 诊断用：统计某个短信 URI 当前对本应用可见的行数，-1 表示查询失败。 */
+    private fun countRows(uriStr: String): Int {
+        return try {
+            contentResolver.query(Uri.parse(uriStr), arrayOf("_id"), null, null, null)?.use {
+                it.count
+            } ?: -1
+        } catch (e: Exception) {
+            AppLog.w(this, "同步诊断：查询 $uriStr 失败：${e.message}")
+            -1
+        }
     }
 
     /** 退出 loading 状态：隐藏进度圈、恢复按钮。 */
