@@ -1,5 +1,7 @@
 # SMS2Mail —— 轻量短信转发器（仅转发到邮箱）
 
+> 🤖 本项目由 **WorkBuddy（Hy3 模型）** 生成。
+
 参考开源项目 [pppscn/SmsForwarder](https://github.com/pppscn/SmsForwarder) 的思路，
 但**只保留最核心的能力**：
 
@@ -152,3 +154,10 @@ SmsForwarderLite/
 完整版功能丰富（来电、通知、钉钉/飞书/企业微信/Telegram/Webhook 等多通道、
 远程控制服务端等），代价是体积大、依赖多。
 本精简版**只做一件事**：短信 → 邮箱，并保留完整日志，适合备用机长期挂着用。
+
+---
+
+## 关于
+
+本项目由 **WorkBuddy（Hy3 模型）** 生成 —— 从需求分析、代码编写、编译错误修复到 UI 迭代，
+全程由 AI 辅助完成。

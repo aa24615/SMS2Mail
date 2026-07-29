@@ -5,6 +5,14 @@
         android:icon="@drawable/ic_home"
         android:title="主页" />
     <item
+        android:id="@+id/nav_list"
+        android:icon="@drawable/ic_list"
+        android:title="短信列表" />
+    <item
+        android:id="@+id/nav_log"
+        android:icon="@drawable/ic_log"
+        android:title="日志" />
+    <item
         android:id="@+id/nav_settings"
         android:icon="@drawable/ic_settings"
         android:title="设置" />

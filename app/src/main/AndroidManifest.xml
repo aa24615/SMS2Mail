@@ -5,6 +5,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- 接收短信广播 -->
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <!-- 主动读取短信箱用于「同步」按钮（手动补转发的兜底方案） -->
+    <uses-permission android:name="android.permission.READ_SMS" />
     <!-- Android 13+ 前台服务通知 -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- 前台服务（Android 14 必需） -->
@@ -36,6 +38,19 @@
 
         <activity
             android:name=".SettingsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".EmailConfigActivity"
+            android:exported="false"
+            android:parentActivityName=".SettingsActivity" />
+
+        <activity
+            android:name=".SmsListActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".LogActivity"
             android:exported="false" />
 
         <!-- 短信接收器改为由 ListenerService 运行时动态注册（见下），不再静态注册，
